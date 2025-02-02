@@ -14,11 +14,7 @@ Contribución
 ¡Las contribuciones son bienvenidas! Si deseas colaborar, sigue estos pasos:
 
 Haz un fork del repositorio.
-Crea una nueva rama (git checkout -b feature/nueva-funcionalidad).
-Realiza tus cambios y haz commit (git commit -am 'Añadir nueva funcionalidad').
-Envía tus cambios a tu fork (git push origin feature/nueva-funcionalidad).
-Abre un Pull Request.
-Licencia
+
 Este proyecto está licenciado bajo la Licencia MIT. Consulta el archivo LICENSE para más detalles.
 
 ¡Esperamos verte entre los primeros miembros de la comunidad y contribuir al crecimiento de Simpyl!
