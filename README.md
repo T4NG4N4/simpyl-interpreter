@@ -13,6 +13,5 @@ Gestión automática de memoria: Para que puedas centrarte en lo importante sin 
 Herramientas de depuración integradas: Incluye puntos de interrupción y herramientas para inspeccionar variables, mejorando la experiencia de desarrollo.
 Definición y llamada a funciones: Permite una estructura de código más limpia y modular.
 Importación de módulos: Extiende la funcionalidad de Simpyl con una amplia variedad de módulos.
-¡SE UNO DE LOS PRIMEROS EN UNIRTE!
 
 Este es el momento perfecto para ser de los primeros en entrar a la comunidad de Simpyl. Al hacerlo, tendrás la oportunidad de influir en la evolución del lenguaje y ayudar a construir una base sólida para el proyecto. ¡Juntos podemos hacerlo crecer y llevarlo lejos!
