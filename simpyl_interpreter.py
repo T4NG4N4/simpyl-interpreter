@@ -1,133 +1,129 @@
+import tkinter as tk
+from tkinter import ttk, scrolledtext, messagebox
+import pyperclip
+from translate import Translator
+import pygments
+from pygments.lexers import PythonLexer
+from pygments.styles import get_style_by_name
 import re
-import gc
-import psutil
-import traceback
-import importlib
 
-class MemoryManager:
-    """
-    Clase para manejar la memoria, monitoreando y ejecutando la recolección de basura si es necesario.
-    """
-    def __init__(self, threshold=100, check_interval=10):
-        # Umbral de memoria en MB y intervalo de chequeo en número de comandos ejecutados
-        self.memory_threshold = threshold
-        self.check_interval = check_interval
+# Clase para el resaltado de sintaxis en el widget Text
+class SyntaxHighlightingText(tk.Text):
+    def __init__(self, *args, **kwargs):
+        tk.Text.__init__(self, *args, **kwargs)
+        self.lexer = PythonLexer()  # Usar el lexer de Python de Pygments
+        self.style = get_style_by_name('monokai')  # Usar el estilo 'monokai' de Pygments
+        self.configure_tags()  # Configurar las etiquetas de estilo
 
-    def monitor_memory(self, command_count):
-        """
-        Monitorea el uso de memoria y ejecuta la recolección de basura si el uso de memoria supera el umbral.
-        """
-        if command_count % self.check_interval == 0:
-            process = psutil.Process()
-            memory_usage = process.memory_info().rss / (1024 * 1024)  # Convertir a MB
-            if memory_usage > self.memory_threshold:
-                print(f"Uso de memoria alto: {memory_usage:.2f} MB. Ejecutando recolección de basura.")
-                gc.collect()
+    def configure_tags(self):
+        # Configurar las etiquetas de estilo basadas en los tokens de Pygments
+        for token, style in self.style:
+            if style['color']:
+                self.tag_configure(str(token), foreground='#' + style['color'])
+            if style['bgcolor']:
+                self.tag_configure(str(token), background='#' + style['bgcolor'])
 
-class Debugger:
-    """
-    Clase para manejar la depuración, incluyendo puntos de interrupción e inspección de variables.
-    """
-    def __init__(self):
-        self.debug_mode = False
-        self.breakpoints = {}
+    def highlight(self, event=None):
+        # Resaltar el texto en el widget
+        self.remove_tags()  # Eliminar etiquetas existentes
+        code = self.get("1.0", tk.END)  # Obtener el contenido del widget
+        for token, content in self.lexer.get_tokens(code):
+            self.insert_tag(token, content)  # Insertar etiquetas para los tokens
 
-    def enable_debug(self):
-        """
-        Habilita el modo de depuración.
-        """
-        self.debug_mode = True
-        print("Modo de depuración habilitado. Usa '(inspect <variable>)' para ver el valor de las variables.")
+    def insert_tag(self, token, content):
+        # Insertar una etiqueta para un token específico
+        start = self.index(tk.INSERT)
+        self.insert(start, content)
+        self.tag_add(str(token), start, self.index(tk.INSERT))
 
-    def disable_debug(self):
-        """
-        Deshabilita el modo de depuración.
-        """
-        self.debug_mode = False
-        print("Modo de depuración deshabilitado.")
+    def remove_tags(self):
+        # Eliminar todas las etiquetas del texto
+        for tag in self.tag_names():
+            self.tag_remove(tag, "1.0", tk.END)
 
-    def add_breakpoint(self, line, condition=None):
-        """
-        Añade un punto de interrupción en una línea específica con una condición opcional.
-        """
-        self.breakpoints[line] = condition
-        print(f"Punto de interrupción añadido en la línea {line}. Condición: {condition or 'Ninguna'}.")
+# Clase para el autocompletado en el widget Text
+class AutoComplete:
+    def __init__(self, text_widget):
+        self.text_widget = text_widget
+        self.words = set()  # Conjunto de palabras para autocompletar
+        self.text_widget.bind("<KeyRelease>", self.on_key_release)  # Vincular evento de liberación de tecla
 
-    def remove_breakpoint(self, line):
-        """
-        Elimina un punto de interrupción de una línea específica.
-        """
-        if line in self.breakpoints:
-            del self.breakpoints[line]
-            print(f"Punto de interrupción eliminado de la línea {line}.")
-        else:
-            print(f"No hay punto de interrupción en la línea {line}.")
+    def add_words(self, words):
+        # Añadir palabras al conjunto de palabras para autocompletar
+        self.words.update(words)
 
-    def inspect_variable(self, variables, var_name):
-        """
-        Inspecciona el valor de una variable específica.
-        """
-        if var_name in variables:
-            print(f"{var_name} = {variables[var_name]['value']}")
-        else:
-            print(f"Variable '{var_name}' no encontrada.")
+    def on_key_release(self, event):
+        # Evento de liberación de tecla
+        if event.keysym in {'Return', 'Tab', 'BackSpace'}:
+            return
+        current_text = self.text_widget.get("1.0", tk.END).split()
+        if current_text:
+            prefix = current_text[-1]  # Obtener el prefijo actual
+            matches = [w for w in self.words if w.startswith(prefix)]  # Encontrar coincidencias
+            if matches:
+                self.show_popup(matches, prefix)
 
-    def show_call_stack(self):
-        """
-        Muestra la pila de llamadas actual.
-        """
-        print("Pila de llamadas:")
-        print("".join(traceback.format_stack()))
+    def show_popup(self, matches, prefix):
+        # Mostrar un popup con las coincidencias de autocompletado
+        popup = tk.Toplevel(self.text_widget)
+        popup.geometry("+%d+%d" % (self.text_widget.winfo_rootx(), self.text_widget.winfo_rooty()))
+        popup.wm_overrideredirect(True)
+        listbox = tk.Listbox(popup)
+        listbox.pack()
+        for match in matches:
+            listbox.insert(tk.END, match)  # Insertar coincidencias en la lista
 
-class FunctionManager:
-    """
-    Clase para manejar la definición y ejecución de funciones.
-    """
-    def __init__(self):
-        self.functions = {}
+        def on_select(event):
+            # Evento de selección de una coincidencia
+            selected = listbox.get(tk.ACTIVE)
+            current_text = self.text_widget.get("1.0", tk.END).split()
+            current_text[-1] = selected
+            self.text_widget.delete("1.0", tk.END)
+            self.text_widget.insert(tk.END, ' '.join(current_text))
+            popup.destroy()
 
-    def handle_function_definition(self, command):
-        """
-        Maneja la definición de funciones.
-        """
+        listbox.bind("<<ListboxSelect>>", on_select)  # Vincular evento de selección
+
+# Clase principal de la interfaz de usuario del IDE
+class SimpylIDE:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Simpyl IDE")
+
+        # Crear el widget de texto con resaltado de sintaxis
+        self.editor = SyntaxHighlightingText(root, wrap=tk.WORD, undo=True)
+        self.editor.pack(padx=10, pady=10, expand=True, fill=tk.BOTH)
+        
+        # Configurar el autocompletado
+        self.autocomplete = AutoComplete(self.editor)
+        self.autocomplete.add_words(['import', 'from', 'def', 'class', 'try', 'except', 'finally', 'for', 'while', 'if', 'else', 'elif', 'return', 'print', 'self', 'True', 'False', 'None'])
+
+        # Crear el botón de ejecutar
+        self.run_button = ttk.Button(root, text="Ejecutar", command=self.run_code)
+        self.run_button.pack(padx=10, pady=5)
+
+        # Crear el widget de texto para la salida
+        self.output = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=80, height=10, state='disabled')
+        self.output.pack(padx=10, pady=10, expand=True, fill=tk.BOTH)
+
+    def run_code(self):
+        # Ejecutar el código escrito en el editor
+        code = self.editor.get("1.0", tk.END)
+        self.output.config(state='normal')
+        self.output.delete("1.0", tk.END)
+
         try:
-            # Usa una expresión regular para extraer el nombre, parámetros y cuerpo de la función.
-            match = re.match(r'\(define\s+\((\w+)\s*(.*?)\)\s*\((.*?)\)\)', command)
-            if not match:
-                return "Error de sintaxis en la definición de la función."
-            
-            func_name, params, body = match.groups()
-            param_list = [p.strip() for p in params.split()] if params else []
-
-            self.functions[func_name] = {'params': param_list, 'body': body.strip()}
-            return f"Función '{func_name}' definida con parámetros {param_list}."
+            exec(code, globals())  # Ejecutar el código
         except Exception as e:
-            return f"Error al definir la función: {traceback.format_exc()}"
+            # Mostrar errores en la salida
+            self.output.insert(tk.END, f"Error: {str(e)}\n")
+            self.output.insert(tk.END, traceback.format_exc())
+        
+        self.output.config(state='disabled')
+        self.editor.highlight()  # Resaltar el código después de la ejecución
 
-class ModuleManager:
-    """
-    Clase para manejar la carga de módulos.
-    """
-    def __init__(self):
-        self.loaded_modules = {}
-
-    def load_module(self, module_name):
-        """
-        Carga un módulo especificado.
-        """
-        try:
-            module = importlib.import_module(module_name)
-            self.loaded_modules[module_name] = module
-            print(f"Módulo '{module_name}' cargado con éxito.")
-        except ModuleNotFoundError:
-            print(f"Error: El módulo '{module_name}' no se encuentra. Verifica el nombre e inténtalo nuevamente.")
-        except Exception as e:
-            print(f"Error al cargar el módulo: {traceback.format_exc()}")
-
+# Clase del intérprete Simpyl
 class SimpylInterpreter:
-    """
-    Intérprete principal para ejecutar comandos.
-    """
     def __init__(self):
         self.variables = {}
         self.memory_manager = MemoryManager()
@@ -137,36 +133,29 @@ class SimpylInterpreter:
         self.command_count = 0
 
     def execute_command(self, command):
-        """
-        Ejecuta un comando dado.
-        """
+        # Ejecutar un comando dado
         command = command.strip()
         try:
             if command.startswith("(import"):
-                # Maneja la importación de módulos
                 module_name = command.split()[1].strip(')')
                 return self.module_manager.load_module(module_name)
             elif re.match(r'\(define ', command):
-                # Maneja la definición de funciones
                 return self.function_manager.handle_function_definition(command)
             elif re.match(r'\(\w+ = ', command):
-                # Maneja la asignación de variables
                 return self.handle_variable_assignment(command)
             elif command.startswith("(print"):
-                # Maneja el comando print
                 return self.handle_print(command)
             elif re.match(r'\(\w+\s', command):
-                # Maneja la llamada a funciones
                 return self.handle_function_call(command)
             else:
-                return "Comando no reconocido. Asegúrate de que la sintaxis sea correcta."
+                return "Comando no reconocido."
         except Exception as e:
-            return f"Error al ejecutar el comando: {traceback.format_exc()}"
+            error_message = f"Error al ejecutar el comando: {traceback.format_exc()}"
+            print(error_message)
+            return error_message
 
     def handle_variable_assignment(self, command):
-        """
-        Maneja la asignación de variables.
-        """
+        # Manejar la asignación de variables
         try:
             var_name, expression = re.match(r'\((\w+) = (.*?)\)', command).groups()
             var_name = var_name.strip()
@@ -176,23 +165,22 @@ class SimpylInterpreter:
             self.variables[var_name] = {'value': value}
             return f"{var_name} asignado con valor {value}"
         except Exception as e:
-            return f"Error al asignar variable: {traceback.format_exc()}"
+            error_message = f"Error al asignar variable: {traceback.format_exc()}"
+            print(error_message)
+            return error_message
 
     def handle_print(self, command):
-        """
-        Maneja el comando print.
-        """
+        # Manejar el comando print
         try:
             expression = command[7:-1].strip()
             value = self.evaluate_expression(expression)
             print(value)
         except Exception as e:
-            print(f"Error en print: {traceback.format_exc()}")
+            error_message = f"Error en print: {traceback.format_exc()}"
+            print(error_message)
 
     def evaluate_expression(self, expression):
-        """
-        Evalúa una expresión de manera segura.
-        """
+        # Evaluar una expresión de manera segura
         allowed_operators = {'+', '-', '*', '/', '%', '**'}
         for op in allowed_operators:
             if op in expression:
@@ -200,17 +188,13 @@ class SimpylInterpreter:
         return eval(expression, {"__builtins__": None}, self.variables)
 
     def safe_eval(self, expression):
-        """
-        Realiza una evaluación segura de una expresión.
-        """
+        # Realizar una evaluación segura de una expresión
         tokens = re.findall(r'\d+|[-+*/%**()]', expression)
         result = eval(''.join(tokens))
         return result
 
     def handle_function_call(self, command):
-        """
-        Maneja la llamada a funciones.
-        """
+        # Manejar la llamada a funciones
         try:
             func_call = re.match(r'\((\w+)\s*(.*?)\)', command)
             func_name, params = func_call.groups()
@@ -220,27 +204,12 @@ class SimpylInterpreter:
             local_vars.update(self.variables)
             return eval(func['body'], {"__builtins__": None}, local_vars)
         except Exception as e:
-            return f"Error en la llamada a la función: {traceback.format_exc()}"
-
-    def run(self):
-        """
-        Inicia el bucle principal del intérprete.
-        """
-        print("Bienvenido a Simpyl. Escriba 'exit' para salir.")
-        while True:
-            try:
-                command = input(f"Simpyl> ")
-                if command.lower() == "exit":
-                    print("Saliendo de Simpyl...")
-                    break
-                result = self.execute_command(command)
-                if result:
-                    print(result)
-                self.command_count += 1
-                self.memory_manager.monitor_memory(self.command_count)
-            except Exception as e:
-                print(f"Error: {traceback.format_exc()}. Verifica la sintaxis o el comando.")
+            error_message = f"Error en la llamada a la función: {traceback.format_exc()}"
+            print(error_message)
+            return error_message
 
 if __name__ == "__main__":
-    interpreter = SimpylInterpreter()
-    interpreter.run()
+    # Crear la ventana principal y ejecutar el IDE
+    root = tk.Tk()
+    ide = SimpylIDE(root)
+    root.mainloop()
