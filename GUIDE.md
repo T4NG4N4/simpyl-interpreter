@@ -1,4 +1,7 @@
-Para iniciar el intérprete, ejecuta:
+### `GUIDE.md`
+```markdown
+Para iniciar el int
+ete, ejecuta:
 
 sh
 python simpyl_interpreter.py
@@ -19,9 +22,9 @@ Este proyecto está licenciado bajo la Licencia MIT. Consulta el archivo LICENSE
 
 ¡Esperamos verte entre los primeros miembros de la comunidad y contribuir al crecimiento de Simpyl!
 Code
-### `GUIDE.md`
 
-```markdown
+
+
 # Guía de Sintaxis de Simpyl
 
 ## 1. Introducción a Simpyl
