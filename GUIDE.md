@@ -25,7 +25,7 @@ Ejemplo:
 En este caso, la función suma recibe dos parámetros a y b, y devuelve su suma.
 
 Ejemplo de llamada:
-(suma (3, 4)  ; Resultado: 7
+(suma (3, 4))  ; Resultado: 7
 
 3.2 Asignar una Variable
 Para asignar un valor a una variable, utilizamos la siguiente sintaxis:
@@ -39,7 +39,7 @@ Esto asigna el valor 10 a la variable x.
 3.3 Imprimir un Valor
 El comando print se usa para mostrar información en la salida estándar:
 
-(print (expression)
+(print (expression))
 
 Ejemplo:
 (print ("Hola, mundo!"))  ; Imprime: Hola, mundo!
