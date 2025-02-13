@@ -8,6 +8,7 @@ import json  # Para trabajar con estructuras de datos JSON (listas y diccionario
 import logging  # Para registrar errores sin mostrarlos en pantalla
 import pdb  # Depurador interactivo de Python
 import pytest  # Librería para pruebas unitarias
+import sys  # Para acceder a argumentos del sistema
 
 # Configuración del sistema de logs
 logging.basicConfig(level=logging.ERROR, filename="simpyl.log", filemode="w")
@@ -182,8 +183,8 @@ class SimpylInterpreter:
             logging.error(f"Error en la declaración if-else: {command}\n{e}", exc_info=True)
             return f"Error en la declaración if-else: {traceback.format_exc()}"
 
-    def run(self):
-        """Ejecuta el intérprete en un bucle de lectura de comandos."""
+    def run_interactive(self):
+        """Ejecuta el intérprete en modo interactivo."""
         print("Bienvenido a Simpyl. Escriba 'exit' para salir.")
         while True:
             try:
@@ -196,10 +197,34 @@ class SimpylInterpreter:
                     print(result)
                 self.command_count += 1
                 self.memory_manager.monitor_memory(self.command_count)
+            except KeyboardInterrupt:
+                print("\nSaliendo de Simpyl...")
+                break
             except Exception:
                 logging.error("Error fatal en el intérprete.", exc_info=True)
                 print("Error interno en Simpyl.")
 
+    def run_file(self, filename):
+        """Ejecuta un archivo de Simpyl."""
+        try:
+            with open(filename, "r", encoding="utf-8") as file:
+                for line in file:
+                    result = self.execute_command(line.strip())
+                    if result:
+                        print(result)
+                    self.command_count += 1
+                    self.memory_manager.monitor_memory(self.command_count)
+        except FileNotFoundError:
+            print(f"Error: No se encontró el archivo '{filename}'.")
+        except Exception as e:
+            logging.error(f"Error al ejecutar archivo: {filename}\n{e}", exc_info=True)
+            print(f"Error interno al ejecutar archivo: {traceback.format_exc()}")
+
 if __name__ == "__main__":
     interpreter = SimpylInterpreter()
-    interpreter.run()
+
+    if len(sys.argv) > 1:
+        filename = sys.argv[1]
+        interpreter.run_file(filename)
+    else:
+        interpreter.run_interactive()
