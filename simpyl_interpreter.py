@@ -3,6 +3,12 @@ import gc  # Gestión de memoria y recolección de basura
 import psutil  # Para obtener información sobre el uso de memoria y CPU
 import traceback  # Para capturar y mostrar trazas de errores
 import importlib  # Para importar módulos dinámicamente
+import ast  # Para evaluar expresiones de forma segura
+import json  # Para trabajar con estructuras de datos JSON (listas y diccionarios)
+import logging  # Para registrar errores sin mostrarlos en pantalla
+
+# Configuración del sistema de logs
+logging.basicConfig(level=logging.ERROR, filename="simpyl.log", filemode="w")
 
 class MemoryManager:
     """Maneja la memoria y ejecuta la recolección de basura cuando el uso de memoria excede un umbral."""
@@ -11,12 +17,17 @@ class MemoryManager:
         self.check_interval = check_interval  # Frecuencia de chequeo en comandos ejecutados
 
     def monitor_memory(self, command_count):
+        """Monitorea el uso de memoria y ejecuta la recolección de basura si es necesario."""
         if command_count % self.check_interval == 0:
             process = psutil.Process()
             memory_usage = process.memory_info().rss / (1024 * 1024)
+
+            # Ajusta el umbral de recolección de basura dinámicamente
             if memory_usage > self.memory_threshold:
                 print(f"Uso de memoria alto: {memory_usage:.2f} MB. Ejecutando recolección de basura.")
                 gc.collect()
+                gc.set_threshold(int(memory_usage * 0.8))  # Ajusta umbral dinámicamente
+
 
 class Debugger:
     """Proporciona herramientas de depuración, como puntos de interrupción e inspección de variables."""
@@ -42,10 +53,12 @@ class Debugger:
             print(f"Punto de interrupción eliminado de la línea {line}.")
 
     def inspect_variable(self, variables, var_name):
+        """Inspecciona una variable y muestra su valor si existe."""
         if var_name in variables:
             print(f"{var_name} = {variables[var_name]}")
         else:
             print(f"Variable '{var_name}' no encontrada.")
+
 
 class FunctionManager:
     """Maneja la definición y almacenamiento de funciones dentro del intérprete."""
@@ -53,17 +66,21 @@ class FunctionManager:
         self.functions = {}  # Diccionario de funciones definidas por el usuario
 
     def define_function(self, command):
+        """Define una función en Simpyl y la almacena en el entorno global."""
         try:
             match = re.match(r'\(define \((\w+) \((.*?)\)\): \((.*?)\)\)', command)
             if not match:
                 return "Error de sintaxis en la definición de la función."
-            
+
             func_name, params, body = match.groups()
             param_list = [p.strip() for p in params.split(',')] if params else []
-            self.functions[func_name] = {'params': param_list, 'body': body.strip()}
-            return f"Función '{func_name}' definida."
-        except Exception:
-            return f"Error al definir la función: {traceback.format_exc()}"
+            function_code = f"def {func_name}({', '.join(param_list)}): return {body}"
+
+            exec(function_code, globals())  # Ejecuta y almacena la función en el entorno global
+            return f"Función '{func_name}' definida correctamente."
+        except Exception as e:
+            return f"Error al definir la función: {str(e)}"
+
 
 class ModuleManager:
     """Maneja la importación dinámica de módulos externos."""
@@ -71,12 +88,14 @@ class ModuleManager:
         self.loaded_modules = {}
 
     def load_module(self, module_name):
+        """Importa dinámicamente un módulo si está disponible."""
         try:
             module = importlib.import_module(module_name)
             self.loaded_modules[module_name] = module
             print(f"Módulo '{module_name}' cargado con éxito.")
         except ModuleNotFoundError:
             print(f"Error: El módulo '{module_name}' no se encuentra.")
+
 
 class SimpylInterpreter:
     """Interpreta y ejecuta comandos del lenguaje Simpyl."""
@@ -101,14 +120,13 @@ class SimpylInterpreter:
                 return self.handle_variable_assignment(command)
             elif command.startswith("(print"):
                 return self.handle_print(command)
-            elif re.match(r'\(\w+\s', command):
-                return self.handle_function_call(command)
             elif re.match(r'\(if ', command):
                 return self.handle_conditional(command)
             else:
                 return "Comando no reconocido."
-        except Exception:
-            return f"Error al ejecutar el comando: {traceback.format_exc()}"
+        except Exception as e:
+            logging.error(f"Error al ejecutar comando: {command}\n{e}", exc_info=True)
+            return "Error al ejecutar el comando."
 
     def handle_variable_assignment(self, command):
         """Maneja la asignación de variables."""
@@ -117,37 +135,18 @@ class SimpylInterpreter:
             value = self.evaluate_expression(expression)
             self.variables[var_name] = value
             return f"{var_name} asignado con valor {value}"
-        except Exception:
-            return f"Error al asignar variable: {traceback.format_exc()}"
-
-    def handle_print(self, command):
-        """Maneja el comando print para mostrar valores en pantalla."""
-        try:
-            expression = command[7:-1].strip()
-            value = self.evaluate_expression(expression)
-            print(value)
-        except Exception:
-            print(f"Error en print: {traceback.format_exc()}")
+        except Exception as e:
+            logging.error(f"Error en asignación de variable: {command}\n{e}", exc_info=True)
+            return "Error al asignar variable."
 
     def evaluate_expression(self, expression):
-        """Evalúa una expresión matemática o lógica."""
-        allowed_operators = {'+', '-', '*', '/', '%', '**'}
-        for op in allowed_operators:
-            if op in expression:
-                return self.safe_eval(expression)
-        return eval(expression, {"__builtins__": None}, self.variables)
-
-    def handle_conditional(self, command):
-        """Maneja la evaluación de estructuras condicionales (if-else)."""
+        """Evalúa una expresión matemática o lógica de forma segura."""
         try:
-            match = re.match(r'\(if \((.*?)\)\s*\((.*?)\)\s*\((.*?)\)\)', command)
-            if not match:
-                return "Error de sintaxis en la estructura condicional."
-            condition, then_expression, else_expression = match.groups()
-            result = self.evaluate_expression(condition)
-            return self.evaluate_expression(then_expression) if result else self.evaluate_expression(else_expression)
+            if expression.startswith("[") or expression.startswith("{"):
+                return json.loads(expression)  # Soporte para listas y diccionarios
+            return eval(expression, {"__builtins__": None}, self.variables)
         except Exception:
-            return f"Error en la evaluación condicional: {traceback.format_exc()}"
+            return "Expresión inválida"
 
     def run(self):
         """Ejecuta el intérprete en un bucle de lectura de comandos."""
@@ -164,7 +163,8 @@ class SimpylInterpreter:
                 self.command_count += 1
                 self.memory_manager.monitor_memory(self.command_count)
             except Exception:
-                print(f"Error: {traceback.format_exc()}.")
+                logging.error("Error fatal en el intérprete.", exc_info=True)
+                print("Error interno en Simpyl.")
 
 if __name__ == "__main__":
     interpreter = SimpylInterpreter()
