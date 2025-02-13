@@ -6,6 +6,8 @@ import importlib  # Para importar módulos dinámicamente
 import ast  # Para evaluar expresiones de forma segura
 import json  # Para trabajar con estructuras de datos JSON (listas y diccionarios)
 import logging  # Para registrar errores sin mostrarlos en pantalla
+import pdb  # Depurador interactivo de Python
+import pytest  # Librería para pruebas unitarias
 
 # Configuración del sistema de logs
 logging.basicConfig(level=logging.ERROR, filename="simpyl.log", filemode="w")
