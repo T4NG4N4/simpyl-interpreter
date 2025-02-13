@@ -72,7 +72,7 @@ class FunctionManager:
         try:
             match = re.match(r'\(define \((\w+) \((.*?)\)\): \((.*?)\)\)', command)
             if not match:
-                return "Error de sintaxis en la definición de la función."
+                return "Error de sintaxis en la definición de la función. Asegúrese de que la sintaxis sea correcta."
 
             func_name, params, body = match.groups()
             param_list = [p.strip() for p in params.split(',')] if params else []
@@ -81,7 +81,8 @@ class FunctionManager:
             exec(function_code, globals())  # Ejecuta y almacena la función en el entorno global
             return f"Función '{func_name}' definida correctamente."
         except Exception as e:
-            return f"Error al definir la función: {str(e)}"
+            logging.error(f"Error al definir la función: {command}\n{e}", exc_info=True)
+            return f"Error al definir la función: {traceback.format_exc()}"
 
 
 class ModuleManager:
@@ -96,7 +97,11 @@ class ModuleManager:
             self.loaded_modules[module_name] = module
             print(f"Módulo '{module_name}' cargado con éxito.")
         except ModuleNotFoundError:
-            print(f"Error: El módulo '{module_name}' no se encuentra.")
+            logging.error(f"Error: El módulo '{module_name}' no se encuentra.")
+            return f"Error: El módulo '{module_name}' no se encuentra."
+        except Exception as e:
+            logging.error(f"Error al cargar el módulo '{module_name}': {e}", exc_info=True)
+            return f"Error al cargar el módulo '{module_name}': {traceback.format_exc()}"
 
 
 class SimpylInterpreter:
@@ -114,7 +119,7 @@ class SimpylInterpreter:
         command = command.strip()
         try:
             if command.startswith("(import"):
-                module_name = command.split('(")')[1].rstrip('"))')
+                module_name = command.split('("')[1].rstrip('")')
                 return self.module_manager.load_module(module_name)
             elif re.match(r'\(define ', command):
                 return self.function_manager.define_function(command)
@@ -125,10 +130,10 @@ class SimpylInterpreter:
             elif re.match(r'\(if ', command):
                 return self.handle_conditional(command)
             else:
-                return "Comando no reconocido."
+                return "Comando no reconocido. Por favor, revise la sintaxis."
         except Exception as e:
             logging.error(f"Error al ejecutar comando: {command}\n{e}", exc_info=True)
-            return "Error al ejecutar el comando."
+            return f"Error al ejecutar el comando: {traceback.format_exc()}"
 
     def handle_variable_assignment(self, command):
         """Maneja la asignación de variables."""
@@ -139,7 +144,7 @@ class SimpylInterpreter:
             return f"{var_name} asignado con valor {value}"
         except Exception as e:
             logging.error(f"Error en asignación de variable: {command}\n{e}", exc_info=True)
-            return "Error al asignar variable."
+            return f"Error al asignar variable: {traceback.format_exc()}"
 
     def evaluate_expression(self, expression):
         """Evalúa una expresión matemática o lógica de forma segura."""
@@ -147,8 +152,35 @@ class SimpylInterpreter:
             if expression.startswith("[") or expression.startswith("{"):
                 return json.loads(expression)  # Soporte para listas y diccionarios
             return eval(expression, {"__builtins__": None}, self.variables)
-        except Exception:
-            return "Expresión inválida"
+        except Exception as e:
+            logging.error(f"Error al evaluar expresión: {expression}\n{e}", exc_info=True)
+            return f"Expresión inválida: {traceback.format_exc()}"
+
+    def handle_print(self, command):
+        """Maneja el comando print."""
+        try:
+            expression = re.match(r'\(print \((.*?)\)\)', command).groups()[0]
+            value = self.evaluate_expression(expression)
+            print(value)
+        except Exception as e:
+            logging.error(f"Error en comando print: {command}\n{e}", exc_info=True)
+            return f"Error en comando print: {traceback.format_exc()}"
+
+    def handle_conditional(self, command):
+        """Maneja la estructura condicional if-else."""
+        try:
+            match = re.match(r'\(if \((.*?)\)\s*\((.*?)\)\s*\((.*?)\)\)', command)
+            if not match:
+                return "Error de sintaxis en la declaración if-else."
+
+            condition, then_expr, else_expr = match.groups()
+            if self.evaluate_expression(condition):
+                return self.evaluate_expression(then_expr)
+            else:
+                return self.evaluate_expression(else_expr)
+        except Exception as e:
+            logging.error(f"Error en la declaración if-else: {command}\n{e}", exc_info=True)
+            return f"Error en la declaración if-else: {traceback.format_exc()}"
 
     def run(self):
         """Ejecuta el intérprete en un bucle de lectura de comandos."""
