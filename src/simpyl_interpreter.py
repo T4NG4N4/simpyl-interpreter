@@ -13,8 +13,10 @@ import sys  # Para acceder a argumentos del sistema
 # Configuración del sistema de logs
 logging.basicConfig(level=logging.ERROR, filename="simpyl.log", filemode="w")
 
+
 class MemoryManager:
     """Maneja la memoria y ejecuta la recolección de basura cuando el uso de memoria excede un umbral."""
+    
     def __init__(self, threshold=100, check_interval=10):
         self.memory_threshold = threshold  # Umbral de memoria en MB
         self.check_interval = check_interval  # Frecuencia de chequeo en comandos ejecutados
@@ -34,6 +36,7 @@ class MemoryManager:
 
 class Debugger:
     """Proporciona herramientas de depuración, como puntos de interrupción e inspección de variables."""
+    
     def __init__(self):
         self.debug_mode = False  # Estado del modo de depuración
         self.breakpoints = {}  # Diccionario de puntos de interrupción
@@ -65,6 +68,7 @@ class Debugger:
 
 class FunctionManager:
     """Maneja la definición y almacenamiento de funciones dentro del intérprete."""
+    
     def __init__(self):
         self.functions = {}  # Diccionario de funciones definidas por el usuario
 
@@ -88,6 +92,7 @@ class FunctionManager:
 
 class ModuleManager:
     """Maneja la importación dinámica de módulos externos."""
+    
     def __init__(self):
         self.loaded_modules = {}
 
@@ -107,6 +112,7 @@ class ModuleManager:
 
 class SimpylInterpreter:
     """Interpreta y ejecuta comandos del lenguaje Simpyl."""
+    
     def __init__(self):
         self.variables = {}  # Diccionario de variables
         self.memory_manager = MemoryManager()
