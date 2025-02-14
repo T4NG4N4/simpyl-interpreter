@@ -14,118 +14,79 @@ La misión de Simpyl es convertirse en un lenguaje popular y totalmente independ
 - **Definición y llamada a funciones:** Permite una estructura de código más modular y organizada.
 - **Importación de módulos:** Extiende la funcionalidad de Simpyl con una amplia variedad de módulos.
 
-Este es el momento perfecto para unirte a la comunidad de Simpyl. Al hacerlo, podrás influir en la evolución del lenguaje y ayudar a construir una base sólida para el proyecto. ¡Juntos podemos hacerlo crecer y llevarlo lejos!
+# Simpyl Interpreter
 
----
+## Introducción
 
-## Estructura del Proyecto
+Simpyl no es solo un lenguaje de programación en desarrollo; es una invitación a ser parte de algo más grande. Este proyecto busca combinar la flexibilidad de Python con la simplicidad de Scheme para crear un lenguaje completamente independiente, con su propio intérprete, eliminando la dependencia de otros lenguajes. Si alguna vez soñaste con contribuir a la creación de un lenguaje de programación, esta es tu oportunidad.
 
-El repositorio de Simpyl está requiere tu alluda para lograr tener un estructurado de la siguiente manera y un dia ser un lenguaje completo:
+Cada línea de código escrita aquí representa un paso hacia un lenguaje más accesible, potente y versátil. La comunidad es el pilar fundamental de este proyecto, y tu ayuda es invaluable para llevarlo al siguiente nivel.
 
-```
-Simpyl/
-├── src/
-│   ├── lexer.py  # Analizador léxico
-│   ├── parser.py  # Analizador sintáctico
-│   ├── interpreter.py  # Intérprete de Simpyl
-│   └── utils.py  # Utilidades y funciones auxiliares
-├── examples/
-│   ├── hello_world.spyl  # Ejemplo básico en Simpyl
-│   ├── factorial.spyl  # Cálculo de factorial con recursión
-│   └── conditionals.spyl  # Uso de estructuras condicionales
-├── tests/
-│   ├── test_lexer.py  # Pruebas del analizador léxico
-│   ├── test_parser.py  # Pruebas del analizador sintáctico
-│   ├── test_interpreter.py  # Pruebas del intérprete
-│   └── test_examples.py  # Pruebas de ejemplos
-├── README.md  # Documentación principal del proyecto
-├── GUIDE.md  # Guía detallada sobre la sintaxis de Simpyl
-└── LICENSE  # Licencia del proyecto
-```
+## Objetivo del Proyecto
 
-## Repositorio en GitHub
+- Desarrollar un lenguaje de programación simple, potente y versátil.
+- Crear un intérprete nativo que ejecute Simpyl de manera eficiente.
+- Fomentar una comunidad activa que contribuya al crecimiento del lenguaje.
+- Explorar nuevas características y paradigmas que hagan de Simpyl una opción atractiva para programadores.
 
-Puedes encontrar el código fuente y contribuir al desarrollo de Simpyl en el siguiente repositorio:
+## Instalación
 
-[Repositorio en GitHub](https://github.com/T4NG4N4/simpyl-interpreter)
+Actualmente, el intérprete de Simpyl está implementado en Python. Para ejecutarlo:
 
-## Analizador Léxico (Lexer)
-
-El lexer de Simpyl transforma el código fuente en una secuencia de tokens que pueden ser interpretados por el analizador sintáctico. Su implementación en Python está basada en expresiones regulares para reconocer diferentes componentes del lenguaje.
-
-### Implementación del Lexer
-
-```python
-import re
-import sys
-
-token_specification = [
-    ('COMMENT', r'/\*[\s\S]*?\*/'),   # Comentarios multilínea
-    ('LPAREN', r'\('),                # Paréntesis izquierdo
-    ('RPAREN', r'\)'),                # Paréntesis derecho
-    ('DEFINE', r'\bdefine\b'),        # Palabra clave 'define'
-    ('PRINT', r'\bprint\b'),          # Palabra clave 'print'
-    ('IF', r'\bif\b'),                # Palabra clave 'if'
-    ('ELSE', r'\belse\b'),            # Palabra clave 'else'
-    ('NUMBER', r'\b\d+(\.\d+)?([eE][+-]?\d+)?\b'),  # Números con decimales o exponentes
-    ('STRING', r'"([^"\\]|\\.)*"'),   # Cadenas entre comillas dobles
-    ('IDENTIFIER', r'[A-Za-z_][A-Za-z0-9_]*'),  # Identificadores
-    ('COMPARISON_OP', r'==|!=|<=|>=|<|>'),  # Operadores de comparación
-    ('ARITHMETIC_OP', r'[+\-*/%]'),   # Operadores aritméticos
-    ('SKIP', r'[ \t\n\r]+'),          # Espacios, tabulaciones, saltos de línea
-    ('MISMATCH', r'.'),               # Cualquier otro carácter no esperado
-]
-
-master_pattern = '|'.join(f'(?P<{pair[0]}>{pair[1]})' for pair in token_specification)
-compiled_re = re.compile(master_pattern)
-
-def lexer(code):
-    for mo in compiled_re.finditer(code):
-        kind = mo.lastgroup
-        value = mo.group()
-        if kind == 'SKIP':
-            continue
-        elif kind == 'MISMATCH':
-            print(f'Error: Carácter inesperado "{value}"')
-            sys.exit(1)
-        else:
-            yield kind, value
-```
-
-### Uso del Lexer
-
-Ejemplo de ejecución:
-```python
-code = """
-(define square (x) (* x x))
-(print (square 4))
-"""
-
-for token in lexer(code):
-    print(token)
-```
-
-## Contribuir al Proyecto
-
-Si deseas contribuir a Simpyl, sigue estos pasos:
-
-1. **Clona el repositorio:**
-   ```sh
+1. Clona este repositorio:
+   ```bash
    git clone https://github.com/T4NG4N4/simpyl-interpreter.git
    cd simpyl-interpreter
    ```
-2. **Crea una rama para tu contribución:**
-   ```sh
-   git checkout -b mi-nueva-funcionalidad
+2. Asegúrate de tener Python 3 instalado.
+3. Ejecuta el intérprete:
+   ```bash
+   python src/simpyl_interpreter.py
    ```
-3. **Realiza tus cambios y prébalos.**
-4. **Envía un Pull Request.**
 
-Apreciamos cualquier tipo de contribución, ya sea mejorando el código, corrigiendo errores, agregando documentación o sugiriendo nuevas características.
+## Ejemplo de Uso
 
-## Contacto y Comunidad
+Puedes ejecutar código Simpyl dentro del intérprete. Un ejemplo básico:
 
-Próximamente agregaremos redes sociales y canales de comunicación para interactuar con la comunidad de Simpyl.
+```scheme
+(print "Hola, mundo!")
 
-¡Esperamos tu participación para hacer crecer Simpyl y mejorar juntos!
+(define (suma a b)
+  (+ a b))
+
+(print (suma 3 5))
+```
+
+Salida esperada:
+```
+Hola, mundo!
+8
+```
+
+## Contribución
+
+Este proyecto es impulsado por la comunidad. Todos los colaboradores son parte esencial de su desarrollo. Si quieres ayudar, sigue estos pasos:
+
+1. Haz un fork del repositorio.
+2. Crea una rama para tu mejora:
+   ```bash
+   git checkout -b mi-mejora
+   ```
+3. Realiza cambios y haz commit:
+   ```bash
+   git commit -m "Agregada nueva funcionalidad"
+   ```
+4. Sube los cambios y crea un pull request.
+
+Consulta el archivo [CONTRIBUTING.md](CONTRIBUTING.md) para más detalles.
+
+## Comunidad y Difusión
+
+Queremos que Simpyl crezca y llegue a muchas personas. Pronto se crearán espacios en foros y redes para atraer colaboradores y compartir avances.
+
+Si te interesa formar parte de esta iniciativa, únete y aporta tu granito de arena.
+
+## Licencia
+
+Este proyecto está licenciado bajo [MIT License](LICENSE).
 
