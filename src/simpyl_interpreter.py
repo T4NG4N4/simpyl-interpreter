@@ -75,15 +75,16 @@ class FunctionManager:
     def define_function(self, command):
         """Define una función en Simpyl y la almacena en el entorno global."""
         try:
-            match = re.match(r'\(define \((\w+) \((.*?)\)\): \((.*?)\)\)', command)
+            match = re.match(r'\(define \((\w+) (\((.*?)\))\)\s*(.*?)\)', command)
             if not match:
                 return "Error de sintaxis en la definición de la función. Asegúrese de que la sintaxis sea correcta."
 
-            func_name, params, body = match.groups()
-            param_list = [p.strip() for p in params.split(',')] if params else []
-            function_code = f"def {func_name}({', '.join(param_list)}): return {body}"
+            func_name, params, param_list, body = match.groups()
+            param_list = [p.strip() for p in param_list.split()] if param_list else []
+            function_code = f"def {func_name}({', '.join(param_list)}):\n    {body}"
 
             exec(function_code, globals())  # Ejecuta y almacena la función en el entorno global
+            self.functions[func_name] = function_code
             return f"Función '{func_name}' definida correctamente."
         except Exception as e:
             logging.error(f"Error al definir la función: {command}\n{e}", exc_info=True)
@@ -128,14 +129,26 @@ class SimpylInterpreter:
             if command.startswith("(import"):
                 module_name = command.split('("')[1].rstrip('")')
                 return self.module_manager.load_module(module_name)
-            elif re.match(r'\(define ', command):
+            elif command.startswith("(define ("):
                 return self.function_manager.define_function(command)
-            elif re.match(r'\(\w+ = ', command):
+            elif re.match(r'\(define \w+', command):
                 return self.handle_variable_assignment(command)
             elif command.startswith("(print"):
                 return self.handle_print(command)
             elif re.match(r'\(if ', command):
                 return self.handle_conditional(command)
+            elif re.match(r'\(inspect ', command):
+                return self.handle_inspect(command)
+            elif command.startswith("(enable-debug)"):
+                self.debugger.enable_debug()
+            elif command.startswith("(disable-debug)"):
+                self.debugger.disable_debug()
+            elif re.match(r'\(add-breakpoint ', command):
+                line = re.findall(r'\d+', command)[0]
+                self.debugger.add_breakpoint(int(line))
+            elif re.match(r'\(remove-breakpoint ', command):
+                line = re.findall(r'\d+', command)[0]
+                self.debugger.remove_breakpoint(int(line))
             else:
                 return "Comando no reconocido. Por favor, revise la sintaxis."
         except Exception as e:
@@ -145,7 +158,7 @@ class SimpylInterpreter:
     def handle_variable_assignment(self, command):
         """Maneja la asignación de variables."""
         try:
-            var_name, expression = re.match(r'\((\w+) = (.*?)\)', command).groups()
+            var_name, expression = re.match(r'\(define (\w+) (.*?)\)', command).groups()
             value = self.evaluate_expression(expression)
             self.variables[var_name] = value
             return f"{var_name} asignado con valor {value}"
@@ -188,6 +201,15 @@ class SimpylInterpreter:
         except Exception as e:
             logging.error(f"Error en la declaración if-else: {command}\n{e}", exc_info=True)
             return f"Error en la declaración if-else: {traceback.format_exc()}"
+
+    def handle_inspect(self, command):
+        """Maneja el comando inspect."""
+        try:
+            var_name = re.match(r'\(inspect (.*?)\)', command).groups()[0]
+            return self.debugger.inspect_variable(self.variables, var_name)
+        except Exception as e:
+            logging.error(f"Error en comando inspect: {command}\n{e}", exc_info=True)
+            return f"Error en comando inspect: {traceback.format_exc()}"
 
     def run_interactive(self):
         """Ejecuta el intérprete en modo interactivo."""
