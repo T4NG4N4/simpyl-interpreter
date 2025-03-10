@@ -1,5 +1,3 @@
-Aquí tienes la guía corregida y estilizada para tu archivo GUIDE.md:
-
 ```markdown
 # Guía de Simpyl
 
