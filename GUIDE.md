@@ -1,3 +1,6 @@
+Aquí tienes la guía corregida y estilizada para tu archivo GUIDE.md:
+
+```markdown
 # Guía de Simpyl
 
 ## 1. Introducción a Simpyl
@@ -23,146 +26,149 @@ La sintaxis para definir una función es:
 ```scheme
 (define (function-name param1 param2 ...)
   body-of-function)
+```
+
 Ejemplo:
 
-scheme
-Copiar
-Editar
+```scheme
 (define (suma a b)
   (+ a b))
+```
+
 Llamada:
 
-scheme
-Copiar
-Editar
+```scheme
 (suma 3 4)  ; Resultado: 7
-3.2 Asignar una Variable
-Para asignar un valor a una variable, utilizamos define:
+```
 
-scheme
-Copiar
-Editar
+### 3.2 Asignar una Variable
+Para asignar un valor a una variable, utilizamos `define`:
+
+```scheme
 (define x 10)
-3.3 Imprimir un Valor
-El comando print se usa para mostrar información en la salida estándar:
+```
 
-scheme
-Copiar
-Editar
+### 3.3 Imprimir un Valor
+El comando `print` se usa para mostrar información en la salida estándar:
+
+```scheme
 (print "Hola, mundo!")
-3.4 Llamada a Funciones
+```
+
+### 3.4 Llamada a Funciones
 Las funciones se llaman con el siguiente formato:
 
-scheme
-Copiar
-Editar
+```scheme
 (function-name param1 param2 ...)
+```
+
 Ejemplo:
 
-scheme
-Copiar
-Editar
+```scheme
 (suma 5 10)  ; Resultado: 15
-4. Expresiones y Operadores
+```
+
+## 4. Expresiones y Operadores
 Simpyl permite realizar operaciones matemáticas con operadores básicos:
 
-+ para sumar
-- para restar
-* para multiplicar
-/ para dividir
-mod para obtener el módulo
-expt para exponenciación
+- `+` para sumar
+- `-` para restar
+- `*` para multiplicar
+- `/` para dividir
+- `mod` para obtener el módulo
+- `expt` para exponenciación
+
 Ejemplo:
 
-scheme
-Copiar
-Editar
+```scheme
 (define x (+ 5 10))  ; Asigna a x el valor de 5 + 10, es decir, 15
-5. Condicionales (If-Else)
-Las decisiones condicionales en Simpyl se manejan con if:
+```
 
-scheme
-Copiar
-Editar
+## 5. Condicionales (If-Else)
+Las decisiones condicionales en Simpyl se manejan con `if`:
+
+```scheme
 (if (condition)
     then-expression
     else-expression)
+```
+
 Ejemplo:
 
-scheme
-Copiar
-Editar
+```scheme
 (if (> 10 5)
     (print "10 es mayor que 5")
     (print "10 no es mayor que 5"))
-6. Manejo de Funciones Avanzadas
-6.1 Funciones con Valores por Defecto
-Puedes definir funciones con valores por defecto usando define:
+```
 
-scheme
-Copiar
-Editar
+## 6. Manejo de Funciones Avanzadas
+
+### 6.1 Funciones con Valores por Defecto
+Puedes definir funciones con valores por defecto usando `define`:
+
+```scheme
 (define saludar
   (lambda (nombre)
     (print (string-append "Hola, " nombre))))
 
 (saludar "Carlos")  ; Imprime: Hola, Carlos
-6.2 Funciones Recursivas
+```
+
+### 6.2 Funciones Recursivas
 Las funciones recursivas son aquellas que se llaman a sí mismas dentro de su cuerpo. Aquí tienes un ejemplo de cómo calcular el factorial de un número:
 
-scheme
-Copiar
-Editar
+```scheme
 (define (factorial n)
   (if (<= n 1)
       1
       (* n (factorial (- n 1)))))
+```
+
 Llamada:
 
-scheme
-Copiar
-Editar
+```scheme
 (factorial 5)  ; Resultado: 120
-7. Manejo de Módulos
-En Simpyl, puedes importar módulos externos para extender la funcionalidad de tu programa utilizando el comando (import "module_name"):
+```
 
-scheme
-Copiar
-Editar
+## 7. Manejo de Módulos
+En Simpyl, puedes importar módulos externos para extender la funcionalidad de tu programa utilizando el comando `(import "module_name")`:
+
+```scheme
 (import "math")
 (print (sqrt 16))  ; Imprime: 4.0
-8. Depuración y Puntos de Interrupción
-8.1 Inspeccionar una Variable
-Puedes inspeccionar el valor de una variable en cualquier momento utilizando el comando inspect:
+```
 
-scheme
-Copiar
-Editar
+## 8. Depuración y Puntos de Interrupción
+
+### 8.1 Inspeccionar una Variable
+Puedes inspeccionar el valor de una variable en cualquier momento utilizando el comando `inspect`:
+
+```scheme
 (inspect x)  ; Imprime el valor de x
-8.2 Puntos de Interrupción
-Puedes agregar un punto de interrupción en una línea específica para detener la ejecución del programa con el comando add-breakpoint:
+```
 
-scheme
-Copiar
-Editar
+### 8.2 Puntos de Interrupción
+Puedes agregar un punto de interrupción en una línea específica para detener la ejecución del programa con el comando `add-breakpoint`:
+
+```scheme
 (add-breakpoint 10)
-8.3 Habilitar o Deshabilitar el Modo de Depuración
+```
+
+### 8.3 Habilitar o Deshabilitar el Modo de Depuración
 Simpyl permite habilitar o deshabilitar el modo de depuración para ver mensajes detallados de lo que está ocurriendo en el código:
 
-scheme
-Copiar
-Editar
+```scheme
 (enable-debug)  ; Habilita el modo de depuración
 (disable-debug)  ; Deshabilita el modo de depuración
-9. Manejo de Memoria
+```
+
+## 9. Manejo de Memoria
 El sistema de Simpyl incluye un gestor de memoria que monitorea el uso y ejecuta recolección de basura cuando es necesario. Esto es manejado automáticamente por el sistema. Puedes configurar el umbral de memoria para activar la recolección de basura, pero generalmente no es necesario intervenir directamente.
 
-10. Ejemplo Completo
+## 10. Ejemplo Completo
 Aquí hay un ejemplo completo que demuestra varias características de Simpyl:
 
-scheme
-Copiar
-Editar
+```scheme
 (define (suma a b)
   (+ a b))
 
@@ -177,4 +183,6 @@ Editar
 (print (string-append "La suma de " (number->string x) " y " (number->string y) " es: " (number->string result)))
 
 (print (string-append "El factorial de 5 es: " (number->string (factorial 5))))
-Este ejemplo define dos funciones (suma y factorial), asigna valores a variables y usa print para mostrar resultados. Además, utiliza string-append y number->string para concatenar y mostrar los resultados de manera más legible.
+```
+
+Este ejemplo define dos funciones (suma y factorial), asigna valores a variables y usa `print` para mostrar resultados. Además, utiliza `string-append` y `number->string` para concatenar y mostrar los resultados de manera más legible.
