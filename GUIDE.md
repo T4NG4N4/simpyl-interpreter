@@ -1,4 +1,3 @@
-```markdown
 # Guía de Simpyl
 
 ## 1. Introducción a Simpyl
