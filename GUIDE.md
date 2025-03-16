@@ -1,71 +1,97 @@
-# Guía de Simpyl
+# Guía de Simpyl (Actualizada)
 
 ## 1. Introducción a Simpyl
-Simpyl es un lenguaje de programación diseñado para ser sencillo, flexible y fácil de entender. Está inspirado en lenguajes funcionales como Scheme, con una sintaxis minimalista que lo hace accesible tanto para programadores principiantes como avanzados.
+
+Simpyl es un lenguaje de programación diseñado para ser sencillo, flexible y fácil de entender. Está inspirado en lenguajes funcionales como Scheme, pero con la flexibilidad y las estructuras de Python. La sintaxis de Simpyl está basada completamente en paréntesis, lo que permite una estructura clara y coherente.
 
 Simpyl se ejecuta en un intérprete y tiene un enfoque basado en expresiones. Aquí veremos cómo escribir y ejecutar código en Simpyl.
 
+---
+
 ## 2. Sintaxis Básica
+
 Simpyl utiliza una sintaxis basada en paréntesis para definir y ejecutar expresiones. Algunos de los elementos más comunes son:
 
-- Definición de funciones: `(define ...)`
-- Asignación de variables: `(define var_name value)`
-- Impresión de valores: `(print ...)`
-- Llamadas a funciones: `(function_name ...)`
-- Condicionales: `(if condition then-expression else-expression)`
-- Módulos: `(import module_name)`
+- **Definición de funciones:** `(define (nombre (param1 param2 ...)) ...)`
+- **Asignación de variables:** `(define (var (nombre valor)))`
+- **Impresión de valores:** `(print (valor))`
+- **Llamadas a funciones:** `(nombre-de-funcion (param1 param2 ...))`
+- **Condicionales:** `(if (condición) (entonces) (si-no))`
+- **Bucles:** `(while (condición) (cuerpo))`
+- **Listas:** `(list (elem1 elem2 elem3))`
+
+---
 
 ## 3. Comandos Básicos
 
 ### 3.1 Definir una Función
+
 La sintaxis para definir una función es:
 
 ```scheme
-(define (function-name param1 param2 ...)
-  body-of-function)
+(define (nombre (param1 param2 ...))
+    (cuerpo-de-la-funcion))
 ```
 
 Ejemplo:
 
 ```scheme
-(define (suma a b)
-  (+ a b))
+(define (suma (a b))
+    return (+ a b))
 ```
 
 Llamada:
 
 ```scheme
-(suma 3 4)  ; Resultado: 7
+(suma (3 4)) ; Resultado: 7
 ```
 
+---
+
 ### 3.2 Asignar una Variable
+
 Para asignar un valor a una variable, utilizamos `define`:
 
 ```scheme
-(define x 10)
-```
-
-### 3.3 Imprimir un Valor
-El comando `print` se usa para mostrar información en la salida estándar:
-
-```scheme
-(print "Hola, mundo!")
-```
-
-### 3.4 Llamada a Funciones
-Las funciones se llaman con el siguiente formato:
-
-```scheme
-(function-name param1 param2 ...)
+(define (var (x 10)))
 ```
 
 Ejemplo:
 
 ```scheme
-(suma 5 10)  ; Resultado: 15
+(define (var (pi 3.1416)))
 ```
 
+---
+
+### 3.3 Imprimir un Valor
+
+El comando `print` se usa para mostrar información en la salida estándar:
+
+```scheme
+(print ("Hola, mundo!"))
+```
+
+---
+
+### 3.4 Llamada a Funciones
+
+Las funciones se llaman con el siguiente formato:
+
+```scheme
+(nombre-de-funcion (param1 param2 ...))
+```
+
+Ejemplo:
+
+```scheme
+(suma (5 10)) ; Resultado: 15
+```
+
+---
+
 ## 4. Expresiones y Operadores
+
 Simpyl permite realizar operaciones matemáticas con operadores básicos:
 
 - `+` para sumar
@@ -78,108 +104,122 @@ Simpyl permite realizar operaciones matemáticas con operadores básicos:
 Ejemplo:
 
 ```scheme
-(define x (+ 5 10))  ; Asigna a x el valor de 5 + 10, es decir, 15
+(define (var (x (+ 5 10)))) ; Asigna a x el valor de 5 + 10, es decir, 15
 ```
 
-## 5. Condicionales (If-Else)
-Las decisiones condicionales en Simpyl se manejan con `if`:
+---
+
+## 5. Condicionales (If-Elif-Else)
+
+Las decisiones condicionales en Simpyl se manejan con `if`, `elif` y `else`:
 
 ```scheme
-(if (condition)
-    then-expression
-    else-expression)
+(if (> 10 5)
+    (print ("10 es mayor que 5"))
+    (elif (= 10 5)
+        (print ("10 es igual a 5"))
+        (else
+            (print ("10 no es mayor que 5"))))
+```
+
+---
+
+## 6. Bucles (While)
+
+Puedes definir bucles `while` utilizando la siguiente sintaxis:
+
+```scheme
+(while (< x 5)
+    (print (x))
+    (define (var (x (+ x 1))))
 ```
 
 Ejemplo:
 
 ```scheme
-(if (> 10 5)
-    (print "10 es mayor que 5")
-    (print "10 no es mayor que 5"))
+(define (var (x 0)))
+(while (< x 3)
+    (print (x))
+    (define (var (x (+ x 1)))))
 ```
 
-## 6. Manejo de Funciones Avanzadas
+---
 
-### 6.1 Funciones con Valores por Defecto
-Puedes definir funciones con valores por defecto usando `define`:
+## 7. Listas y Tuplas
+
+Puedes definir listas usando `list`:
 
 ```scheme
-(define saludar
-  (lambda (nombre)
-    (print (string-append "Hola, " nombre))))
-
-(saludar "Carlos")  ; Imprime: Hola, Carlos
+(define (var (mi-lista (list (1 2 3 4)))))
+(print (mi-lista)) ; Resultado: (1 2 3 4)
 ```
 
-### 6.2 Funciones Recursivas
-Las funciones recursivas son aquellas que se llaman a sí mismas dentro de su cuerpo. Aquí tienes un ejemplo de cómo calcular el factorial de un número:
+Para definir tuplas:
 
 ```scheme
-(define (factorial n)
-  (if (<= n 1)
-      1
-      (* n (factorial (- n 1)))))
+(define (var (mi-tupla (tuple (1 2 3)))))
+(print (mi-tupla)) ; Resultado: (1 2 3)
 ```
 
-Llamada:
+Para acceder a elementos:
 
 ```scheme
-(factorial 5)  ; Resultado: 120
+(print (list-get (mi-lista 0))) ; Resultado: 1
+(print (tuple-get (mi-tupla 1))) ; Resultado: 2
 ```
 
-## 7. Manejo de Módulos
-En Simpyl, puedes importar módulos externos para extender la funcionalidad de tu programa utilizando el comando `(import "module_name")`:
+---
+
+## 8. Entrada de Datos
+
+Para leer entrada de datos desde el teclado:
 
 ```scheme
-(import "math")
-(print (sqrt 16))  ; Imprime: 4.0
+(define (var (nombre (input ("¿Cuál es tu nombre?")))))
+(print (string-append ("Hola, " nombre)))
 ```
 
-## 8. Depuración y Puntos de Interrupción
+---
 
-### 8.1 Inspeccionar una Variable
-Puedes inspeccionar el valor de una variable en cualquier momento utilizando el comando `inspect`:
+## 9. Operadores Lógicos
+
+Simpy admite operadores lógicos:
+
+- `and`, `or`, `not`, `xor`
+
+Ejemplo:
 
 ```scheme
-(inspect x)  ; Imprime el valor de x
+(if (and (> 5 3) (< 5 10))
+    (print ("5 está entre 3 y 10")))
+
+(if (or (> 5 10) (< 5 10))
+    (print ("Al menos una condición es verdadera")))
+
+(if (not (> 5 10))
+    (print ("5 no es mayor que 10")))
 ```
 
-### 8.2 Puntos de Interrupción
-Puedes agregar un punto de interrupción en una línea específica para detener la ejecución del programa con el comando `add-breakpoint`:
-
-```scheme
-(add-breakpoint 10)
-```
-
-### 8.3 Habilitar o Deshabilitar el Modo de Depuración
-Simpyl permite habilitar o deshabilitar el modo de depuración para ver mensajes detallados de lo que está ocurriendo en el código:
-
-```scheme
-(enable-debug)  ; Habilita el modo de depuración
-(disable-debug)  ; Deshabilita el modo de depuración
-```
-
-## 9. Manejo de Memoria
-El sistema de Simpyl incluye un gestor de memoria que monitorea el uso y ejecuta recolección de basura cuando es necesario. Esto es manejado automáticamente por el sistema. Puedes configurar el umbral de memoria para activar la recolección de basura, pero generalmente no es necesario intervenir directamente.
+---
 
 ## 10. Ejemplo Completo
-Aquí hay un ejemplo completo que demuestra varias características de Simpyl:
 
 ```scheme
-(define (suma a b)
-  (+ a b))
+(define (suma (a b))
+    return (+ a b))
 
-(define (factorial n)
-  (if (<= n 1)
-      1
-      (* n (factorial (- n 1)))))
+(define (factorial (n))
+    (if (<= n 1)
+        1
+        (* n (factorial (- n 1)))))
 
-(define x 10)
-(define y 20)
-(define result (suma x y))
-(print (string-append "La suma de " (number->string x) " y " (number->string y) " es: " (number->string result)))
+(define (var (x 10)))
+(define (var (y 20)))
+(define (var (result (suma (x y)))))
 
-(print (string-append "El factorial de 5 es: " (number->string (factorial 5))))
+(print (string-append ("La suma de " (number->string (x)) " y " (number->string (y)) " es: " (number->string (result)))))
+(print (string-append ("El factorial de 5 es: " (number->string (factorial (5))))))
 ```
 
-Este ejemplo define dos funciones (suma y factorial), asigna valores a variables y usa `print` para mostrar resultados. Además, utiliza `string-append` y `number->string` para concatenar y mostrar los resultados de manera más legible.
+---
+
